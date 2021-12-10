@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Clicks</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Nunito"
+    />
+  </head>
+  <body
+    style="
+      background: #b3ffab; /* fallback for old browsers */
+      background: -webkit-linear-gradient(
+        to right,
+        #12fff7,
+        #b3ffab
+      ); /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(
+        to right,
+        #12fff7,
+        #b3ffab
+      ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    "
+  >
+    <div
+      class="view"
+      style="
+        display: flex;
+        align-items: center;
+        font-family: Nunito, sans-serif;
+        font-weight: 700;
+        font-size: large;
+        margin: auto;
+        width: 14%;
+        border: 3px solid green;
+        padding: 10px;
+        margin-top: 300px;
+        text-align: center;
+        border: 3px solid green;
+      "
+    >
+      Screen clicked times: &nbsp;<span id="count"></span>
+    </div>
+
+    <!-- ***** Redux implement ******* -->
+
+    <script>
+      //
+      const counterNode = document.getElementById("count");
+      const btn = document.getElementById("btn");
+
+      //redux store
+      const createStore = (reducer, initialState) => {
+        const store = {};
+        store.state = initialState;
+        store.listeners = [];
+
+        store.getState = () => store.state;
+
+        store.subscribe = (listener) => {
+          store.listeners.push(listener);
+        };
+
+        store.dispatch = (action) => {
+          console.log("> Action", action);
+          store.state = reducer(store.state, action);
+          store.listeners.forEach((listener) => listener());
+        };
+
+        return store;
+      };
+
+      //initial state
+      const getInitialState = () => {
+        return {
+          count: 0,
+        };
+      };
+
+      //redux reducer
+      const reducer = (state = getInitialState(), action) => {
+        switch (action.type) {
+          case "COUNT":
+            const nextState = {
+              count: state.count + action.payload.count,
+            };
+
+            return nextState;
+          default:
+            return state;
+        }
+      };
+
+      //create store
+      const store = createStore(reducer);
+
+      //subscribe listners
+      store.subscribe(() => {
+        const state = store.getState();
+        const count = state.count;
+        counterNode.innerHTML = count;
+      });
+
+      // A simple event to dispatch changes
+      document.addEventListener("click", () => {
+        console.log("----- Previous state", store.getState());
+        store.dispatch({
+          type: "COUNT",
+          payload: {
+            count: 1,
+          },
+        });
+        console.log("+++++ New state", store.getState());
+      });
+
+      // Sets the inital state
+      store.dispatch({});
+    </script>
+  </body>
+</html>
